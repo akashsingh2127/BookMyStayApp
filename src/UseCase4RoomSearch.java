@@ -3,135 +3,104 @@
  *
  * Use Case 4: Room Search & Availability Check
  *
- * This program demonstrates read-only access to centralized
- * room inventory. Guests can search and view available rooms
- * without modifying the system state.
- *
  * @author YourName
  * @version 4.0
  */
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-/* -------- ABSTRACT ROOM CLASS -------- */
-abstract class Room {
+abstract class UC4Room {
+    private String roomType;
+    private int price;
 
-    protected String roomType;
-    protected int beds;
-    protected int size;
-    protected double price;
-
-    public Room(String roomType, int beds, int size, double price) {
+    public UC4Room(String roomType, int price) {
         this.roomType = roomType;
-        this.beds = beds;
-        this.size = size;
         this.price = price;
-    }
-
-    public void displayRoomDetails() {
-        System.out.println("Room Type : " + roomType);
-        System.out.println("Beds      : " + beds);
-        System.out.println("Size      : " + size + " sq ft");
-        System.out.println("Price     : $" + price);
     }
 
     public String getRoomType() {
         return roomType;
     }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public abstract String getDetails();
 }
 
-/* -------- ROOM TYPES -------- */
+class UC4SingleRoom extends UC4Room {
+    public UC4SingleRoom() {
+        super("Single Room", 100);
+    }
 
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super("Single Room", 1, 200, 100.0);
+    @Override
+    public String getDetails() {
+        return "Single Room - 1 bed";
     }
 }
 
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super("Double Room", 2, 350, 180.0);
+class UC4DoubleRoom extends UC4Room {
+    public UC4DoubleRoom() {
+        super("Double Room", 150);
+    }
+
+    @Override
+    public String getDetails() {
+        return "Double Room - 2 beds";
     }
 }
 
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super("Suite Room", 3, 500, 350.0);
+class UC4SuiteRoom extends UC4Room {
+    public UC4SuiteRoom() {
+        super("Suite Room", 300);
+    }
+
+    @Override
+    public String getDetails() {
+        return "Suite Room - 3 beds, living area";
     }
 }
 
-/* -------- INVENTORY CLASS -------- */
-
-class RoomInventory {
-
+class UC4RoomInventory {
     private HashMap<String, Integer> inventory;
 
-    public RoomInventory() {
+    public UC4RoomInventory() {
         inventory = new HashMap<>();
-
-        inventory.put("Single Room", 10);
-        inventory.put("Double Room", 7);
-        inventory.put("Suite Room", 0); // unavailable example
+        inventory.put("Single Room", 2);
+        inventory.put("Double Room", 2);
+        inventory.put("Suite Room", 1);
     }
 
     public int getAvailability(String roomType) {
         return inventory.getOrDefault(roomType, 0);
     }
-
-    public HashMap<String, Integer> getInventory() {
-        return inventory;
-    }
 }
-
-/* -------- SEARCH SERVICE -------- */
-
-class RoomSearchService {
-
-    public void searchAvailableRooms(RoomInventory inventory, Room[] rooms) {
-
-        System.out.println("\n--- Available Rooms ---");
-
-        for (Room room : rooms) {
-
-            int available = inventory.getAvailability(room.getRoomType());
-
-            if (available > 0) {
-                room.displayRoomDetails();
-                System.out.println("Available Rooms : " + available);
-                System.out.println("-----------------------------------");
-            }
-        }
-    }
-}
-
-/* -------- MAIN APPLICATION -------- */
 
 public class UseCase4RoomSearch {
 
     public static void main(String[] args) {
 
-        System.out.println("=================================");
-        System.out.println(" Welcome to Book My Stay App ");
-        System.out.println(" Hotel Booking System v4.0 ");
-        System.out.println("=================================");
+        System.out.println("=== Book My Stay App - Room Search & Availability ===");
 
-        /* Initialize Inventory */
-        RoomInventory inventory = new RoomInventory();
+        UC4RoomInventory inventory = new UC4RoomInventory();
 
-        /* Create Room Objects */
-        Room[] rooms = {
-                new SingleRoom(),
-                new DoubleRoom(),
-                new SuiteRoom()
-        };
+        List<UC4Room> rooms = List.of(
+                new UC4SingleRoom(),
+                new UC4DoubleRoom(),
+                new UC4SuiteRoom()
+        );
 
-        /* Search Service */
-        RoomSearchService searchService = new RoomSearchService();
+        for (UC4Room room : rooms) {
+            int avail = inventory.getAvailability(room.getRoomType());
+            if (avail > 0) {
+                System.out.println(room.getRoomType() + " is available (" + avail + " rooms)");
+                System.out.println("Details: " + room.getDetails());
+                System.out.println("Price: $" + room.getPrice());
+                System.out.println("-----------------------------");
+            }
+        }
 
-        /* Perform Room Search */
-        searchService.searchAvailableRooms(inventory, rooms);
-
-        System.out.println("\nApplication terminated.");
+        System.out.println("Application terminated.");
     }
 }
